@@ -5,6 +5,8 @@ function App() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [title, setTitle] = useState('')
 
+  const [tasks, setTasks] = useState([])
+
   function handleCloseForm(){
     setIsFormOpen(false)
     setTitle('')
@@ -13,9 +15,23 @@ function App() {
   function handleSubmit(event) {
     event.preventDefault()
 
-    console.log({
-      title: title,
-    })
+    const normalizedTitle = title.trim()
+
+    if(!normalizedTitle) {
+      return
+    }
+
+    const newTask = {
+      id: crypto.randomUUID(),
+      title: normalizedTitle,
+      completed: false,
+      createdAt: new Date().toISOString()
+    }
+
+    setTasks((currentTasks) => [
+      ...currentTasks,
+      newTask
+    ])
 
     setTitle('')
     setIsFormOpen(false)
@@ -33,7 +49,12 @@ function App() {
         <section className="task-toolbar">
           <div>
             <h2>Minhas tarefas</h2>
-            <p>0 tarefas cadastradas</p>
+            <p>
+              {tasks.length}{' '}
+              {tasks.length === 1
+                ? 'tarefa cadastrada'
+                : 'tarefas cadastradas'}
+            </p>
           </div>
 
           <button type="button" onClick={() => setIsFormOpen(true)}>
@@ -84,13 +105,33 @@ function App() {
           </section>
         )}
 
-        <section className="empty-state">
-          <h2>Nenhuma tarefa cadastrada</h2>
-          <p>Crie sua primeira tarefa para começar.</p>
-          <span className="empty-tip">
-            Use o botão "Nova tarefa" para começar.
-          </span>
-        </section>
+        {tasks.length === 0 ? (
+          <section className="empty-state">
+            <h2>Nenhma tarefa cadastrada</h2>
+            <p>Crie sua primeira tarefa para começar.</p>
+          </section>
+        ) : (
+          <section className="task-list">
+            <ul>
+              {tasks.map((task) => (
+                <li className="task-item" key={task.id}>
+                  <div className="task-information">
+                    <strong>{task.title}</strong>
+                    <span>Tarefa pendente</span>
+                    <time dateTime={task.createdAt}>
+                      {new Date(task.createdAt).toLocaleDateString('pt-BR')}
+                    </time>
+                  </div>
+
+                  <span className="task-status">
+                    Pendente
+                  </span>
+                  
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
       </main>
     </div>
   )
