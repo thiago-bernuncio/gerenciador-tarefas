@@ -89,6 +89,76 @@
   color: #64748b;
 }
 
+.task-form-card {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 8px 24px rgb(15 23 42 / 8%);
+}
+
+.task-form-card h2 {
+  margin: 0 0 24px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-weight: bold;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+}
+
+.form-group input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgb(37 99 235 / 15%);
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.character-counter {
+  text-align: center;
+  font-size: 12px;
+  color: #64748b;
+}
+
+.primary-button,
+.secondary-button {
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.primary-button {
+  border: 1px solid #2563eb;
+  color: white;
+  background-color: #2563eb;
+}
+
+.secondary-button {
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+  background-color: white;
+}
+
+
+
 @media (max-width: 600px) {
   .app-header h1 {
     font-size: 28px;
