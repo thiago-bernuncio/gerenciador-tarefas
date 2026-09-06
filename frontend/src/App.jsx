@@ -7,6 +7,10 @@ function App() {
 
   const [tasks, setTasks] = useState([])
 
+  const pendingTasksCount = tasks.filter((task) => !task.completed).length
+
+  const completedTasksCount = tasks.filter((task) => task.completed,).length
+
   function handleCloseForm(){
     setIsFormOpen(false)
     setTitle('')
@@ -37,6 +41,33 @@ function App() {
     setIsFormOpen(false)
   }
 
+  function handleToggleTask(taskId) {
+    setTasks((currentTasks) => 
+    currentTasks.map((task) => {
+      if(task.id === taskId) {
+        return {
+          ...task,
+          completed: !task.completed,
+        }
+      }
+      return task
+    }))
+  }
+
+  function handleDeleteTask(taskId) {
+    const shoudDelete = window.confirm('Tem certeza de que deseja excluir esta tarefa?')
+
+    if(!shoudDelete) {
+      return
+    }
+
+    setTasks((currentTasks) => 
+      currentTasks.filter((task) => task.id !== taskId)
+    )
+  }
+
+
+
   return (
     <div className="app">
       <header className="app-header">
@@ -51,10 +82,21 @@ function App() {
             <h2>Minhas tarefas</h2>
             <p>
               {tasks.length}{' '}
-              {tasks.length === 1
+              {tasks.length < 2
                 ? 'tarefa cadastrada'
                 : 'tarefas cadastradas'}
             </p>
+
+            <span className="pending-count">
+              {pendingTasksCount}{' '}
+              {pendingTasksCount < 2
+                ? 'tarefa pendente'
+                : 'tarefas pendentes'}
+            </span>
+
+            {tasks.length > 0 && pendingTasksCount === 0 && (
+              <p>Parabéns! Todas as tarefas foram concluídas.</p>
+            )}
           </div>
 
           <button type="button" onClick={() => setIsFormOpen(true)}>
@@ -114,19 +156,41 @@ function App() {
           <section className="task-list">
             <ul>
               {tasks.map((task) => (
-                <li className="task-item" key={task.id}>
-                  <div className="task-information">
-                    <strong>{task.title}</strong>
-                    <span>Tarefa pendente</span>
-                    <time dateTime={task.createdAt}>
-                      {new Date(task.createdAt).toLocaleDateString('pt-BR')}
-                    </time>
-                  </div>
+                <li className={`task-item ${task.completed ? 'task-item--completed' : ''}`} key={task.id}>
+                  <label className="task-check">
+                    <input
+                     type="checkbox"
+                     checked={task.completed}
+                     onChange={() => handleToggleTask(task.id)}
+                     />
 
-                  <span className="task-status">
-                    Pendente
-                  </span>
-                  
+                     <span className="task-information">
+                      <strong>{task.title}</strong>
+
+                      <span>
+                        {task.completed ? 'Tarefa concluída' : 'Tarefa pendente'}
+                      </span>
+
+                      <time dateTime={task.createdAt}>
+                        {new Date(task.createdAt).toLocaleDateString('pt-BR')}
+                      </time>
+                     </span>
+                  </label>
+
+                  <div className="task-actions">
+                    <span className={`task-status ${task.completed ? 'task-status--completed' : ''}`}>
+                      {task.completed ? 'Concluída' : 'Pendente'}
+                    </span>
+
+                    <button 
+                      className="delete-button" 
+                      type="button" 
+                      onClick={() => handleDeleteTask(task.id)} 
+                      aria-label={`Excluir tarefa ${task.title}`}
+                      >
+                      Excluir
+                    </button>
+                  </div>
                 </li>
               ))}
             </ul>

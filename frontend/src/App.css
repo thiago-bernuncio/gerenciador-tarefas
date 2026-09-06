@@ -55,6 +55,13 @@
   color: #64748b;
 }
 
+.pending-count {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  color: #d97706;
+}
+
 .task-toolbar button {
   padding: 12px 18px;
   border: 0;
@@ -95,8 +102,7 @@
 }
 
 .task-list ul {
-  display: flex;
-  flex-direction: column;
+  display: grid;
   gap: 12px;
   margin: 0;
   padding: 0;
@@ -108,32 +114,86 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
-  padding: 16px;
+  padding: 18px 20px;
   border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  border-radius: 12px;
+  background-color: white;
+}
+
+.task-check {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  cursor: pointer;
+}
+
+.task-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: #16a34a;
+  cursor: pointer;
 }
 
 .task-information {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  min-width: 0;
 }
 
-.task-information span {
-  font-size: 14px;
+.task-information strong {
+  overflow-wrap: anywhere;
+}
+
+.task-information span,
+.task-information time {
+  font-size: 13px;
   color: #64748b;
 }
 
-.task-information time {
-  font-size: 12px;
-  color: #94a3b8;
+.task-item--completed {
+  background-color: #f8fafc;
 }
+
+.task-item--completed strong {
+  color: #94a3b8;
+  text-decoration: line-through;
+}
+
 .task-status {
   padding: 6px 10px;
   border-radius: 999px;
   font-size: 12px;
+  font-weight: bold;
   color: #92400e;
   background-color: #fef3c7;
+}
+
+.task-status--completed{
+  color: #166534;
+  background-color: #dcfce7;
+}
+
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.delete-button {
+  padding: 7px 10px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  color: #b91c1c;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  color: white;
+  background-color: #dc2626;
 }
 
 .empty-tip {
@@ -220,5 +280,15 @@
   .task-toolbar {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .task-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .task-actions {
+    width: 100%;
+    justify-content: space-between;
   }
 }
