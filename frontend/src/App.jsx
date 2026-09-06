@@ -3,16 +3,32 @@ import './App.css'
 
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(false)
+  
   const [title, setTitle] = useState('')
 
   const [tasks, setTasks] = useState([])
+
+  const [editingTaskId, setEditingTaskId] = useState(null)
 
   const pendingTasksCount = tasks.filter((task) => !task.completed).length
 
   const completedTasksCount = tasks.filter((task) => task.completed,).length
 
+  function handleOpenCreateForm() {
+    setEditingTaskId(null)
+    setTitle('')
+    setIsFormOpen(true)
+  }
+
+  function handleOpenEditForm(task) {
+    setEditingTaskId(task.id)
+    setTitle(task.title)
+    setIsFormOpen(true)
+  }
+
   function handleCloseForm(){
     setIsFormOpen(false)
+    setEditingTaskId(null)
     setTitle('')
   }
 
@@ -25,20 +41,32 @@ function App() {
       return
     }
 
-    const newTask = {
-      id: crypto.randomUUID(),
-      title: normalizedTitle,
-      completed: false,
-      createdAt: new Date().toISOString()
+    if(editingTaskId) {
+      setTasks((currentTasks) => 
+        currentTasks.map((task) => 
+          task.id === editingTaskId
+            ? {
+              ...task,
+              title: normalizedTitle,
+              updatedAT: new Date().toDateString(),
+            }
+            : task,
+       )
+      )
+    } else {
+      const newTask = {
+        id: crypto.randomUUID(),
+        title: normalizedTitle,
+        completed: false,
+        createdAt: new Date().toISOString()
+      }
+
+      setTasks((currentTasks) => [
+        ...currentTasks,
+        newTask
+      ])
     }
-
-    setTasks((currentTasks) => [
-      ...currentTasks,
-      newTask
-    ])
-
-    setTitle('')
-    setIsFormOpen(false)
+    handleCloseForm()
   }
 
   function handleToggleTask(taskId) {
@@ -64,6 +92,10 @@ function App() {
     setTasks((currentTasks) => 
       currentTasks.filter((task) => task.id !== taskId)
     )
+
+    if(editingTaskId === taskId) {
+      handleCloseForm()
+    }
   }
 
 
@@ -87,6 +119,11 @@ function App() {
                 : 'tarefas cadastradas'}
             </p>
 
+            <p>
+              {completedTasksCount}{' '}
+              {completedTasksCount < 2 ? 'Tarefa concluída' : 'Tarefas concluídas'}
+            </p>
+
             <span className="pending-count">
               {pendingTasksCount}{' '}
               {pendingTasksCount < 2
@@ -99,14 +136,16 @@ function App() {
             )}
           </div>
 
-          <button type="button" onClick={() => setIsFormOpen(true)}>
+          <button type="button" onClick={handleOpenCreateForm}>
             Nova tarefa
           </button>
         </section>
 
         {isFormOpen && (
           <section className="task-form-card">
-            <h2>Criar nova tarefa</h2>
+            <h2>
+              {editingTaskId ? 'Editar tarefa' : 'Criar nova tarefa'}
+            </h2>
 
             <form onSubmit={handleSubmit}>
               <div className='form-group'>
@@ -121,6 +160,7 @@ function App() {
                   value={title}
                   onChange={(event) => setTitle(event.target.value)} 
                   maxLength={60}
+                  autoFocus
                   required              
                   /> 
 
@@ -140,7 +180,7 @@ function App() {
                 <button 
                 className="primary-button" 
                 type="submit">
-                  Salvar tarefa
+                  {editingTaskId ? 'Salvar alterações' : 'Salvar tarefa'}
                 </button>
               </div>
             </form>
@@ -172,8 +212,14 @@ function App() {
                       </span>
 
                       <time dateTime={task.createdAt}>
-                        {new Date(task.createdAt).toLocaleDateString('pt-BR')}
+                        {new Date(task.createdAt).toLocaleString('pt-BR')}
                       </time>
+
+                      {task.updatedAT && (
+                        <time dateTime={task.updatedAT}>
+                          Atualizado em {' '}{new Date(task.updatedAT).toLocaleString('pt-BR')}
+                        </time>
+                      )}
                      </span>
                   </label>
 
@@ -181,6 +227,10 @@ function App() {
                     <span className={`task-status ${task.completed ? 'task-status--completed' : ''}`}>
                       {task.completed ? 'Concluída' : 'Pendente'}
                     </span>
+
+                    <button className="edit-button" type='button' onClick={() => handleOpenEditForm(task)} aria-label={`Editar tarefa ${task.title}`}>
+                      Editar
+                    </button>
 
                     <button 
                       className="delete-button" 
