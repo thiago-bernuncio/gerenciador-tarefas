@@ -1,12 +1,45 @@
 import {useState} from 'react'
+import { useEffect } from 'react'
+
 import './App.css'
+
+const STORAGE_KEY = 'task-manager:tasks'
 
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   
   const [title, setTitle] = useState('')
 
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState(() => {
+
+    const storadTasks = localStorage.getItem(STORAGE_KEY)
+
+    if(!storadTasks) {
+      return []
+    }
+
+    try {
+
+      return JSON.parse(storadTasks)
+
+    } catch(error) {
+
+      console.error(
+        'Não foi possível carregar as tarefas:',
+        error
+      )
+
+      return []
+
+    }
+  })
+
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(tasks)
+    )
+  }, [tasks])
 
   const [editingTaskId, setEditingTaskId] = useState(null)
 
@@ -96,6 +129,22 @@ function App() {
     if(editingTaskId === taskId) {
       handleCloseForm()
     }
+  }
+
+  function handleClearCompleteTaks() {
+    const shoudClear = window.confirm(
+      'Deseja remover todas as tarefas concluídas?'
+    )
+
+    if(!shoudClear) {
+      return
+    }
+
+    setTasks((currentTasks) => 
+      currentTasks.filter((task) => !task.completed)
+    )
+
+
   }
 
 
@@ -243,6 +292,15 @@ function App() {
                   </div>
                 </li>
               ))}
+              {completedTasksCount > 0 && (
+            <button 
+              className='clear-completed-button'
+              type='button'
+              onClick={handleClearCompleteTaks}
+            >
+              Limpar concluídas
+            </button>
+          )}
             </ul>
           </section>
         )}

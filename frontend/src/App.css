@@ -76,6 +76,20 @@
   background-color: #1e40af;
 }
 
+.clear-completed-button {
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  color: #475569;
+  background-color: white;
+  cursor: pointer;
+}
+
+.clear-completed-button:hover {
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+
 .empty-state,
 .task-list {
   margin-top: 24px;
