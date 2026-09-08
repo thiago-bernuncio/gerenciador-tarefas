@@ -5,6 +5,12 @@ import './App.css'
 
 const STORAGE_KEY = 'task-manager:tasks'
 
+const PRIORITY_LABELS = {
+  low: 'Baixa',
+  medium: 'Média',
+  high: 'Alta',
+}
+
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   
@@ -47,15 +53,29 @@ function App() {
 
   const completedTasksCount = tasks.filter((task) => task.completed,).length
 
+  const [priority, setPriority] = useState('medium')
+
+  const [dueDate, setDueDate] = useState('')
+
+  const highPriorityPendingCount = tasks.filter(
+    (task) => 
+      !task.completed &&
+      task.priority === 'high',
+  ).length
+
   function handleOpenCreateForm() {
     setEditingTaskId(null)
     setTitle('')
+    setPriority('medium')
+    setDueDate('')
     setIsFormOpen(true)
   }
 
   function handleOpenEditForm(task) {
     setEditingTaskId(task.id)
     setTitle(task.title)
+    setPriority(task.priority ?? 'medium')
+    setDueDate(task.dueDate ?? '')
     setIsFormOpen(true)
   }
 
@@ -63,6 +83,8 @@ function App() {
     setIsFormOpen(false)
     setEditingTaskId(null)
     setTitle('')
+    setPriority('medium')
+    setDueDate('')
   }
 
   function handleSubmit(event) {
@@ -81,6 +103,8 @@ function App() {
             ? {
               ...task,
               title: normalizedTitle,
+              priority,
+              dueDate,
               updatedAT: new Date().toDateString(),
             }
             : task,
@@ -90,6 +114,8 @@ function App() {
       const newTask = {
         id: crypto.randomUUID(),
         title: normalizedTitle,
+        priority,
+        dueDate,
         completed: false,
         createdAt: new Date().toISOString()
       }
@@ -180,6 +206,14 @@ function App() {
                 : 'tarefas pendentes'}
             </span>
 
+            <span className='high-priority-count'>
+              {highPriorityPendingCount}{' '}
+              {highPriorityPendingCount < 2 
+                ? 'Prioridade alta pendente'
+                : 'Prioridades altas pendentes'  
+              }
+            </span>
+
             {tasks.length > 0 && pendingTasksCount === 0 && (
               <p>Parabéns! Todas as tarefas foram concluídas.</p>
             )}
@@ -232,6 +266,40 @@ function App() {
                   {editingTaskId ? 'Salvar alterações' : 'Salvar tarefa'}
                 </button>
               </div>
+
+              <div className='form-row'>
+                <div className='form-group'>
+                  <label htmlFor='task-priority'>
+                    Prioridade
+                  </label>
+
+                  <select
+                    id='task-priority'
+                    value={priority}
+                    onChange={(event) => 
+                      setPriority(event.target.value)
+                    }
+                  >
+                    <option value="low">Baixa</option>
+                    <option value="medium">Média</option>
+                    <option value="high">Alta</option>
+                  </select>
+                </div>
+
+                <div className='form-group'>
+                  <label htmlFor="task-due-date">
+                    Prazo
+                  </label>
+                  <input
+                    id='task-due-date'
+                    type='date'
+                    value={dueDate}
+                    onChange={(event) => 
+                      setDueDate(event.target.value)
+                    }
+                  />
+                </div>
+              </div>
             </form>
           </section>
         )}
@@ -255,6 +323,22 @@ function App() {
 
                      <span className="task-information">
                       <strong>{task.title}</strong>
+
+                      <div className='task-metadata'>
+                        <span
+                          className={`task-priority task-priority--${task.priority ?? 'medium'}`}
+                        >
+                          {PRIORITY_LABELS[task.priority ?? 'medium']}
+                        </span>
+
+                        <span className='task-due-date'>
+                          {task.dueDate
+                            ? `Prazo: ${new Date(
+                              `${task.dueDate}T00:00:00`,
+                            ).toLocaleDateString('pt-BR')}`
+                            : ' Sem prazo'}
+                        </span>
+                      </div>
 
                       <span>
                         {task.completed ? 'Tarefa concluída' : 'Tarefa pendente'}
