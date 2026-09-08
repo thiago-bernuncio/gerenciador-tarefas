@@ -57,11 +57,44 @@ function App() {
 
   const [dueDate, setDueDate] = useState('')
 
+  const [searchTerm, setSerchTerm] = useState('')
+
+  const [statusFilter, setStatusFilter] = useState('all')
+
+  const [priorityFilter, setPriorityFilter] = useState('all')
+
   const highPriorityPendingCount = tasks.filter(
     (task) => 
       !task.completed &&
       task.priority === 'high',
   ).length
+
+  const hasActiveFilters = searchTerm.trim() !== '' || statusFilter !== 'all' || priorityFilter !== 'all'
+
+  const filteredTasks = tasks.filter((task) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase()
+
+    const matchesSearch = task.title.toLowerCase().includes(normalizedSearch)
+
+    const matchesStatus = statusFilter === 'all' || 
+      (statusFilter === 'pending' && !task.completed) ||
+      (statusFilter === "completed" && task.completed)
+
+    const taskPriority = task.priority ?? 'medium'
+
+    const matchesPriority = priorityFilter === 'all' ||
+      taskPriority === priorityFilter
+
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPriority
+    )
+
+  })
+
+
+
 
   function handleOpenCreateForm() {
     setEditingTaskId(null)
@@ -171,6 +204,12 @@ function App() {
     )
 
 
+  }
+
+  function handleClearFilters() {
+    setSerchTerm('')
+    setStatusFilter('all')
+    setPriorityFilter('all')
   }
 
 
@@ -304,15 +343,90 @@ function App() {
           </section>
         )}
 
+        {tasks.length > 0 && (
+          <section
+            className='task-filters'
+            aria-label='Filtros de tarefas'
+          >
+            <div className='filter-group search-filter'>
+              <label htmlFor="task-search">
+                Buscar
+              </label>
+
+              <input
+                id='task-search'
+                type='search'
+                placeholder='Digite o título da tarefa'
+                value={searchTerm}
+                onChange={(event) => setSerchTerm(event.target.value)}
+              />
+            </div>
+
+            <div className='filter-group'>
+              <label htmlFor="status-filter">
+                Status
+              </label>
+
+              <select
+                id='status-filter'
+                value={statusFilter}
+                onChange={(event) => setStatusFilter(event.target.value)}
+              >
+                <option value="all">Todos</option>
+                <option value="pending">Pendentes</option>
+                <option value="completed">Concluídas</option>
+              </select>
+            </div>
+
+            <div className='filter-group'>
+              <label htmlFor="priority-filter">
+                Prioridade
+              </label>
+
+              <select
+                id='priority-filter'
+                value={priorityFilter}
+                onChange={(event) => setPriorityFilter(event.target.value)}
+              >
+                <option value="all">Todas</option>
+                <option value="low">Baixa</option>
+                <option value="medium">Média</option>
+                <option value="high">Alta</option>
+              </select>
+            </div>
+
+            <p className='filter-results'>
+              {filteredTasks.length} de {tasks.length}{' '}
+              tarefas exibidas
+            </p>
+
+            {hasActiveFilters && (
+              <button
+                className='clear-filters-button'
+                type='button'
+                onClick={handleClearFilters}
+              >
+                Limpar filtros
+              </button>
+            )}
+
+          </section>
+        )}
+
         {tasks.length === 0 ? (
           <section className="empty-state">
             <h2>Nenhma tarefa cadastrada</h2>
             <p>Crie sua primeira tarefa para começar.</p>
           </section>
+        ) : filteredTasks.length === 0 ? (
+          <section className='empty-state'>
+            <h2>Nenhuma tarefa encontrada</h2>
+            <p>Tente alterar a busca ou os filtros.</p>
+          </section>
         ) : (
           <section className="task-list">
             <ul>
-              {tasks.map((task) => (
+              {filteredTasks.map((task) => (
                 <li className={`task-item ${task.completed ? 'task-item--completed' : ''}`} key={task.id}>
                   <label className="task-check">
                     <input
