@@ -1,6 +1,9 @@
 import {useState} from 'react'
 import { useEffect } from 'react'
 
+// Componentes
+import TaskForm from './components/TaskForm'
+
 import './App.css'
 
 const STORAGE_KEY = 'task-manager:tasks'
@@ -264,84 +267,18 @@ function App() {
         </section>
 
         {isFormOpen && (
-          <section className="task-form-card">
-            <h2>
-              {editingTaskId ? 'Editar tarefa' : 'Criar nova tarefa'}
-            </h2>
-
-            <form onSubmit={handleSubmit}>
-              <div className='form-group'>
-                <label htmlFor="task-title">
-                  Título
-                </label>
-
-                <input
-                  id="task-title"
-                  type="text"
-                  placeholder="Ex.: Estudar React"
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)} 
-                  maxLength={60}
-                  autoFocus
-                  required              
-                  /> 
-
-                <span className="character-counter">
-                  {title.length}/60 caracteres
-                </span>
-              </div>
-
-              <div className="form-actions">
-                <button 
-                className="secondary-button"
-                type="button"
-                onClick={handleCloseForm}>
-                  Cancelar
-                </button>
-
-                <button 
-                className="primary-button" 
-                type="submit">
-                  {editingTaskId ? 'Salvar alterações' : 'Salvar tarefa'}
-                </button>
-              </div>
-
-              <div className='form-row'>
-                <div className='form-group'>
-                  <label htmlFor='task-priority'>
-                    Prioridade
-                  </label>
-
-                  <select
-                    id='task-priority'
-                    value={priority}
-                    onChange={(event) => 
-                      setPriority(event.target.value)
-                    }
-                  >
-                    <option value="low">Baixa</option>
-                    <option value="medium">Média</option>
-                    <option value="high">Alta</option>
-                  </select>
-                </div>
-
-                <div className='form-group'>
-                  <label htmlFor="task-due-date">
-                    Prazo
-                  </label>
-                  <input
-                    id='task-due-date'
-                    type='date'
-                    value={dueDate}
-                    onChange={(event) => 
-                      setDueDate(event.target.value)
-                    }
-                  />
-                </div>
-              </div>
-            </form>
-          </section>
-        )}
+          <TaskForm 
+            isEditing={Boolean(editingTaskId)}
+            title={title}
+            priority={priority}
+            dueDate={dueDate}
+            onTitleChange={setTitle}
+            onPriorityChange={setPriority}
+            onDueDateChange={setDueDate}
+            onSubmit={handleSubmit}
+            onCancel={handleCloseForm}
+          />
+        )}    
 
         {tasks.length > 0 && (
           <section
