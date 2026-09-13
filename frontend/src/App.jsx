@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 // Componentes
 import TaskForm from './components/TaskForm'
 import { TaskFilters } from './components/TaskFilters'
-import TaskItem from './components/TaskItem'
+import TaskList from './components/TaskList'
 
 import './App.css'
 
@@ -292,40 +292,14 @@ function App() {
           />
         )}
 
-        {tasks.length === 0 ? (
-          <section className="empty-state">
-            <h2>Nenhma tarefa cadastrada</h2>
-            <p>Crie sua primeira tarefa para começar.</p>
-          </section>
-        ) : filteredTasks.length === 0 ? (
-          <section className='empty-state'>
-            <h2>Nenhuma tarefa encontrada</h2>
-            <p>Tente alterar a busca ou os filtros.</p>
-          </section>
-        ) : (
-          <section className="task-list">
-            <ul>
-              {filteredTasks.map((task) => (
-                <TaskItem 
-                  key={task.id}
-                  task={task}
-                  onToggle={handleToggleTask}
-                  onEdit={handleOpenEditForm}
-                  onDelete={handleDeleteTask}
-                />
-              ))}
-              {completedTasksCount > 0 && (
-            <button 
-              className='clear-completed-button'
-              type='button'
-              onClick={handleClearCompleteTaks}
-            >
-              Limpar concluídas
-            </button>
-          )}
-            </ul>
-          </section>
-        )}
+        <TaskList 
+          tasks={filteredTasks}
+          totaslTasksCount={tasks.length}
+          onToggle={handleToggleTask}
+          onEdit={handleOpenEditForm}
+          onDelete={handleDeleteTask}
+        />  
+
       </main>
     </div>
   )
