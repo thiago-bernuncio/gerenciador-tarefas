@@ -4,16 +4,12 @@ import { useEffect } from 'react'
 // Componentes
 import TaskForm from './components/TaskForm'
 import { TaskFilters } from './components/TaskFilters'
+import TaskItem from './components/TaskItem'
 
 import './App.css'
 
 const STORAGE_KEY = 'task-manager:tasks'
 
-const PRIORITY_LABELS = {
-  low: 'Baixa',
-  medium: 'Média',
-  high: 'Alta',
-}
 
 function App() {
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -310,68 +306,13 @@ function App() {
           <section className="task-list">
             <ul>
               {filteredTasks.map((task) => (
-                <li className={`task-item ${task.completed ? 'task-item--completed' : ''}`} key={task.id}>
-                  <label className="task-check">
-                    <input
-                     type="checkbox"
-                     checked={task.completed}
-                     onChange={() => handleToggleTask(task.id)}
-                     />
-
-                     <span className="task-information">
-                      <strong>{task.title}</strong>
-
-                      <div className='task-metadata'>
-                        <span
-                          className={`task-priority task-priority--${task.priority ?? 'medium'}`}
-                        >
-                          {PRIORITY_LABELS[task.priority ?? 'medium']}
-                        </span>
-
-                        <span className='task-due-date'>
-                          {task.dueDate
-                            ? `Prazo: ${new Date(
-                              `${task.dueDate}T00:00:00`,
-                            ).toLocaleDateString('pt-BR')}`
-                            : ' Sem prazo'}
-                        </span>
-                      </div>
-
-                      <span>
-                        {task.completed ? 'Tarefa concluída' : 'Tarefa pendente'}
-                      </span>
-
-                      <time dateTime={task.createdAt}>
-                        {new Date(task.createdAt).toLocaleString('pt-BR')}
-                      </time>
-
-                      {task.updatedAT && (
-                        <time dateTime={task.updatedAT}>
-                          Atualizado em {' '}{new Date(task.updatedAT).toLocaleString('pt-BR')}
-                        </time>
-                      )}
-                     </span>
-                  </label>
-
-                  <div className="task-actions">
-                    <span className={`task-status ${task.completed ? 'task-status--completed' : ''}`}>
-                      {task.completed ? 'Concluída' : 'Pendente'}
-                    </span>
-
-                    <button className="edit-button" type='button' onClick={() => handleOpenEditForm(task)} aria-label={`Editar tarefa ${task.title}`}>
-                      Editar
-                    </button>
-
-                    <button 
-                      className="delete-button" 
-                      type="button" 
-                      onClick={() => handleDeleteTask(task.id)} 
-                      aria-label={`Excluir tarefa ${task.title}`}
-                      >
-                      Excluir
-                    </button>
-                  </div>
-                </li>
+                <TaskItem 
+                  key={task.id}
+                  task={task}
+                  onToggle={handleToggleTask}
+                  onEdit={handleOpenEditForm}
+                  onDelete={handleDeleteTask}
+                />
               ))}
               {completedTasksCount > 0 && (
             <button 
