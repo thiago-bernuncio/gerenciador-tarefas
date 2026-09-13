@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 
 // Componentes
 import TaskForm from './components/TaskForm'
+import { TaskFilters } from './components/TaskFilters'
 
 import './App.css'
 
@@ -281,73 +282,18 @@ function App() {
         )}    
 
         {tasks.length > 0 && (
-          <section
-            className='task-filters'
-            aria-label='Filtros de tarefas'
-          >
-            <div className='filter-group search-filter'>
-              <label htmlFor="task-search">
-                Buscar
-              </label>
-
-              <input
-                id='task-search'
-                type='search'
-                placeholder='Digite o título da tarefa'
-                value={searchTerm}
-                onChange={(event) => setSerchTerm(event.target.value)}
-              />
-            </div>
-
-            <div className='filter-group'>
-              <label htmlFor="status-filter">
-                Status
-              </label>
-
-              <select
-                id='status-filter'
-                value={statusFilter}
-                onChange={(event) => setStatusFilter(event.target.value)}
-              >
-                <option value="all">Todos</option>
-                <option value="pending">Pendentes</option>
-                <option value="completed">Concluídas</option>
-              </select>
-            </div>
-
-            <div className='filter-group'>
-              <label htmlFor="priority-filter">
-                Prioridade
-              </label>
-
-              <select
-                id='priority-filter'
-                value={priorityFilter}
-                onChange={(event) => setPriorityFilter(event.target.value)}
-              >
-                <option value="all">Todas</option>
-                <option value="low">Baixa</option>
-                <option value="medium">Média</option>
-                <option value="high">Alta</option>
-              </select>
-            </div>
-
-            <p className='filter-results'>
-              {filteredTasks.length} de {tasks.length}{' '}
-              tarefas exibidas
-            </p>
-
-            {hasActiveFilters && (
-              <button
-                className='clear-filters-button'
-                type='button'
-                onClick={handleClearFilters}
-              >
-                Limpar filtros
-              </button>
-            )}
-
-          </section>
+          <TaskFilters 
+            searchTerm={searchTerm}
+            statusFilter={statusFilter}
+            priorityFilter={priorityFilter}
+            filteredCount={filteredTasks.length}
+            totalCount={tasks.length}
+            hasActiveFilters={hasActiveFilters}
+            onSeachChange={setSerchTerm}
+            onStatusChange={setStatusFilter}
+            onPriorityChange={setPriorityFilter}
+            onClear={handleClearFilters}
+          />
         )}
 
         {tasks.length === 0 ? (

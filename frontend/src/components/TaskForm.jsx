@@ -10,7 +10,7 @@ function TaskForm({
     onDueDateChange,
     onSubmit,
     onCancel,
-}) {
+    }) {
 
     const PRIORITY_OPTIONS = [
         {value: 'low', label: 'Baixa'},
