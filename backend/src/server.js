@@ -2,12 +2,17 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 
+import taskRoutes from './routes/taskRoutes.js'
+
 dotenv.config()
 
 const app = express()
 
+// middlewares
 app.use(cors())
 app.use(express.json())
+
+app.use('/api/tasks', taskRoutes)
 
 app.get('/health', (request, response) => {
     return response.status(200).json({
