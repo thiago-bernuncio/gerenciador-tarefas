@@ -1,10 +1,30 @@
 import {randomUUID} from 'node:crypto'
 import {tasks} from '../data/tasks.js'
+import { error } from 'node:console'
 
 export function listTasks(request, response) {
     return response.status(200).json({
         data: tasks,
         total: tasks.length,
+    })
+}
+
+export function getTaskById(request, response) {
+    const {id} = request.params
+
+    const task = tasks.find(
+        (currentTask) => currentTask.id === id
+    )
+
+    if(!task) {
+        return response.status(404).json({
+            error: 'Tarefa não encontrada',
+            taskIs: id,
+        })
+    }
+
+    return response.status(200).json({
+        data: task
     })
 }
 
