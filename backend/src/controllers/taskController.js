@@ -188,3 +188,27 @@ export function updateTask(request, response) {
         data: task
     })
 }
+
+export function deleteTask(request, response) {
+    const {id} = request.params
+
+    const taskIndex = tasks.findIndex(
+        (task) => task.id === id
+    )
+    
+    if(taskIndex === -1) {
+        return response.status(404).json({
+            error: 'Tarefa não encontrada',
+            taskId: id,
+        })
+    }
+
+    const [deletedTask] = tasks.splice(taskIndex, 1)
+
+    return response.status(200).json({
+        message: 'Tarefa excluída com sucesso',
+        data: deletedTask,
+        remaininTotal: tasks.length
+    })
+
+}
