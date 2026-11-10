@@ -1,10 +1,11 @@
 import express from 'express'
 import cors from 'cors'
-import dotenv from 'dotenv'
+import { env } from './config/env.js'
+import { pool } from './config/database.js'
 
 import taskRoutes from './routes/taskRoutes.js'
 
-dotenv.config()
+
 
 const app = express()
 
@@ -28,8 +29,21 @@ app.get('/api', (request, response) => {
     })
 })
 
-const port = process.env.PORT || 3333
+async function startServer() {
+    try{
+        await pool.query('SELECT 1')
+        console.log('PostgreSQL conectado com sucesso')
 
-app.listen(port, () => {
-    console.log(`Servidor executando na porta ${port}`)
-})
+        app.listen(env.port, () => {
+            console.log(`Servidor executando na porta ${env.port}`,
+
+            )
+        })
+    } catch (error) {
+        console.error(
+            'Falha ao conectar ao PostgreSQL:', error.message
+        )
+    }
+}
+
+startServer()
