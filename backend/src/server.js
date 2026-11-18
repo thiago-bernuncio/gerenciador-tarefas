@@ -32,6 +32,7 @@ app.get('/api', (request, response) => {
 async function startServer() {
     try{
         await pool.query('SELECT 1')
+        
         console.log('PostgreSQL conectado com sucesso')
 
         app.listen(env.port, () => {

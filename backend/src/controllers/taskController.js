@@ -3,12 +3,37 @@ import {tasks} from '../data/tasks.js'
 import { error } from 'node:console'
 import { normalize } from 'node:path'
 import { type } from 'node:os'
+import {pool} from '../config/database.js'
 
-export function listTasks(request, response) {
-    return response.status(200).json({
-        data: tasks,
-        total: tasks.length,
-    })
+export async function listTasks(request, response) {
+    try {
+        const result = await pool.query(`
+            SELECT
+                id,
+                title,
+                priority,
+                TO_CHAR(due_date, 'YYYY-MM-DD') AS "dueDate",
+                completed,
+                created_at AS "createdAt",
+                updated_at AS "updatedAt"
+            FROM public.tasks
+            ORDER BY created_at DESC
+        `)
+
+        return response.status(200).json({
+            data: result.rows,
+            total: result.rows.length,
+        })
+    } catch (error) {
+        console.error(
+            'Erro ao listar tarefas:',
+            error.message,
+        )
+
+        return response.status(500).json({
+            error: 'Não foi possivel listar as tarefas',
+        })
+    }
 }
 
 export function createTask(request, response){
