@@ -83,23 +83,63 @@ export function createTask(request, response){
     })
 }
 
-export function getTaskById(request, response) {
+export async function getTaskById(
+    request, response
+) {
     const {id} = request.params
 
-    const task = tasks.find(
-        (currentTask) => currentTask.id === id
-    )
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 
-    if(!task) {
-        return response.status(404).json({
-            error: 'Tarefa não encontrada',
-            taskIs: id,
+    if(!uuidPattern.test(id)) {
+        return response.status(400).json({
+            error: 'Identificador inválido',
+            taskId: id,
         })
     }
 
-    return response.status(200).json({
-        data: task
-    })
+    try {
+        const result = await pool.query(
+            `
+                SELECT
+                    id,
+                    title,
+                    priority,
+                    TO_CHAR(
+                        due_date,
+                        'YYYY-MM-DD'
+                    ) AS "dueDate",
+                     completed,
+                     created_at AS "createdAt",
+                     updated_at AS "updatedAt"
+                FROM public.tasks
+                WHERE id = $1
+            `,
+            [id],
+        )
+
+        const task = result.rows[0]
+        
+        if(!task) {
+            return response.status(404).json({
+                error: 'Tarefa não encontrada',
+                taskId: id,
+            })
+        }
+
+        return response.status(200).json({
+            data: task,
+        })
+
+    } catch (error) {
+        console.error(
+            'Erro ao buscar tarefa:',
+            error.message,
+        )
+
+        return response.status(500).json({
+            error: 'Não foi possível buscar a tarefa'
+        })
+    }
 }
 
 export function updateTask(request, response) {
