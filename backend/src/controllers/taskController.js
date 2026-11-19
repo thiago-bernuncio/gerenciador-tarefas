@@ -1,8 +1,4 @@
-import {randomUUID} from 'node:crypto'
 import {tasks} from '../data/tasks.js'
-import { error } from 'node:console'
-import { normalize } from 'node:path'
-import { type } from 'node:os'
 import {pool} from '../config/database.js'
 
 export async function listTasks(request, response) {
@@ -36,27 +32,24 @@ export async function listTasks(request, response) {
     }
 }
 
-export function createTask(request, response){
+export async function createTask(request, response) {
     const {
         title,
         priority = 'medium',
         dueDate = null,
-    } = request.body
+    } = request.body ?? {}
 
-    const normalizedTitle = 
-        typeof title === 'string'
-            ? title.trim()
-            : ''
-    
+    const normalizedTitle = typeof title === 'string' ? title.trim() : ''
+
     if(!normalizedTitle) {
         return response.status(400).json({
             error: 'O título é obrigatório'
-        })
+         })
     }
 
     if(normalizedTitle.length > 60) {
         return response.status(400).json({
-            error: 'O título deve ter no máximo 60 caracteres'
+            error: 'O título deve ter no máximo 60 caracteres',
         })
     }
 
@@ -66,21 +59,61 @@ export function createTask(request, response){
         'high',
     ]
 
-    const newTask = {
-        id: randomUUID(),
-        title: normalizedTitle,
-        priority,
-        dueDate: dueDate || null,
-        completed: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: null,
+    if(!validPriorities.includes(priority)) {
+        return response.status(400).json({
+            error: 'Prioridade inválida',
+        })
     }
 
-    tasks.push(newTask)
+    const datePattern = /^\d{4}-\d{2}-\d{2}$/
 
-    return response.status(201).json({
-        data: newTask
-    })
+    if(dueDate !== null && dueDate !== '' && (typeof dueDate !== 'string' || !datePattern.test(dueDate))) {
+        return response.status(400).json({
+            error: 'O prazo deve usar o formato AAAA-MM-DD',
+        })
+    }
+
+    try {
+        const result = await pool.query(
+            `
+                INSERT INTO public.tasks(
+                title, 
+                priority,
+                due_date
+                )
+                VALUES ($1, $2, $3)
+                RETURNING
+                    id,
+                    title,
+                    priority,
+                    TO_CHAR(
+                        due_date,
+                        'YYYY-MM-DD' 
+                        ) AS "dueDate",
+                         completed,
+                         created_at AS "createdAt",
+                         updated_at AS "updatedAt"
+            `,
+            [
+                normalizedTitle,
+                priority,
+                dueDate || null,
+            ],
+        )
+
+        return response.status(201).json({
+            data: result.rows[0],
+        })
+    } catch(error) {
+        console.error(
+            'Erro ao criar tarefa:',
+            error.message,
+        )
+
+        return response.status(500).json({
+            error: 'Não foi possível criar a tarefa',
+        })
+    }
 }
 
 export async function getTaskById(
